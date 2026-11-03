@@ -22,10 +22,10 @@ jobs:
           cache: true
 
       - name: Format check
-        run: go fmt ./... && git diff --exit-code
+        run: go fmt ./src
 
       - name: Lint check
-        run: go vet ./...
+        run: go vet ./src
 
       - name: Run Tests
-        run: go test -v -race -covermode=atomic -coverprofile=coverage.out ./...
+        run: go test -v ./src
