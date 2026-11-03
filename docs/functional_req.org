@@ -1,0 +1,27 @@
+#+TITLE: Functional requirements
+#+AUTHOR: Samodurov Nikita
+#+STARTUP: showeverything
+
+* Guidelines for writing documentation
+- Write in english (healthy for agents)
+- Use RFC 2119
+ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+
+ NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and
+
+ "OPTIONAL" in this document are to be interpreted as described in
+
+ RFC 2119.
+
+* TODOs
+** TODO Think of DHT protocol for seeking peers without relying on with tracker
+
+* Requiremnents
+** Frontend
+ - FR-001 :: The system **shall** accept files with .torrent file extension
+ - FR-002 :: The system **shall** log results of bencode parsing
+ - FR-003 :: The system **shall** display an error when parser fails
+ - FR-004 :: The system **shall** display an error when HTTP GET request to tracker fails
+ - FR-005 :: The system **shall** log results of HTTP GET request to tracker
+ - FR-006 :: The system **shall** log the number and the list of peers from HTTP GET request to tracker
+
