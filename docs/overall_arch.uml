@@ -1,0 +1,63 @@
+@startuml
+allowmixing
+
+title Torrent Player Diagram
+
+class TorrentData {
+  + string announce_url
+  + string comment
+  + timestamp creation_date
+  + TorrentInfoDict info_dict
+}
+
+class TorrentInfoDict {
+  + int info_length
+  + string name
+  + int piece_length
+  + byte[] piece_hashes
+}
+
+class PeerData {
+  + IP ip
+  + short port
+}
+
+class PeerConnection {
+  + PeerData ptr_to_data
+  + int tcp_socket
+}
+
+class MediaConnection {
+  + int unix_ipc_socket
+}
+
+actor Tracker
+actor Peer
+actor MediaPlayer
+
+file ".torrent" as TorrentFile
+rectangle "Bencoding parser" as BencodeParser
+rectangle "Core" as Core
+rectangle "CheckSum" as Checksum
+TorrentFile --> BencodeParser
+
+TorrentInfoDict -u-> TorrentData
+
+BencodeParser --> TorrentData
+
+TorrentData -> Tracker: GET Request
+Tracker -> PeerData: Peers IP's
+
+PeerConnection -> Peer
+MediaConnection --> MediaPlayer
+
+
+PeerData --> Core
+
+Core --> MediaConnection: Send JSON
+Core --> PeerConnection: Request piece
+Checksum <-- PeerConnection
+Core <- Checksum: Receive message
+TorrentInfoDict <- Core: Get hashes
+
+@enduml
