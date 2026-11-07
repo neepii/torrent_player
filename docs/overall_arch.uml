@@ -14,7 +14,7 @@ class TorrentInfoDict {
   + int info_length
   + string name
   + int piece_length
-  + byte[] piece_hashes
+  + byte[] piece_hashes (SHA-1)
 }
 
 class PeerData {
@@ -27,18 +27,20 @@ class PeerConnection {
   + int tcp_socket
 }
 
-class MediaConnection {
+class DataStream {
   + int unix_ipc_socket
+  + byte[] fMP4 data (H.264)
 }
 
 actor Tracker
 actor Peer
-actor MediaPlayer
+actor FFmpeg
 
 file ".torrent" as TorrentFile
 rectangle "Bencoding parser" as BencodeParser
 rectangle "Core" as Core
-rectangle "CheckSum" as Checksum
+rectangle "SHA-1 checksum" as Checksum
+rectangle "MP4 → fMP4 remux (mp4ff)" as Remux
 TorrentFile --> BencodeParser
 
 TorrentInfoDict -u-> TorrentData
@@ -49,15 +51,16 @@ TorrentData -> Tracker: GET Request
 Tracker -> PeerData: Peers IP's
 
 PeerConnection -> Peer
-MediaConnection --> MediaPlayer
+DataStream --> FFmpeg
 
 
 PeerData --> Core
 
-Core --> MediaConnection: Send JSON
+Core --> Remux: sequential mp4 bytes (verified pieces)
+Remux --> DataStream: fMP4 fragments
 Core --> PeerConnection: Request piece
-Checksum <-- PeerConnection
-Core <- Checksum: Receive message
+Checksum <-- PeerConnection: piece data
+Core <- Checksum: verified piece
 TorrentInfoDict <- Core: Get hashes
 
 @enduml
