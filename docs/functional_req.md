@@ -25,8 +25,8 @@
 -   **FR-001:** The system ****shall**** accept .torrent v1 files
 -   **FR-001:** The system ****shall**** accept single file torrents
 -   **FR-002:** The system ****required**** to log (in stderr) results of bencode parsing
--   **FR-003:** The system ****required**** display an error when parser fails
--   **FR-004:** The system ****required**** display an error when HTTP GET request to tracker fails
+-   **FR-003:** The system ****required**** display an error (in stderr) when parser fails
+-   **FR-004:** The system ****required**** display an error (in stderr) when HTTP GET request to tracker fails
 -   **FR-005:** The system ****required**** log (in stderr) results of HTTP GET request to tracker
 -   **FR-006:** The system ****required**** log (in stderr) the number and the list of peers from HTTP GET request to tracker
 <a id="org2f91122"></a>
@@ -34,14 +34,14 @@
 -   **FR-008:** The system ****shall**** parse .torrent file to get structure described in Architecture
 -   **FR-009:** The system ****shall**** get IP of peers after tracker's announce response
 -   **FR-010:** The system ****shall**** create unix IPC socket for media player
--   **FR-011:** The FFMPEG (See 2. in Links) ****should**** make connection to created unix IPC socket
+-   **FR-011:** The FFMPEG-based player ****should**** make connection to created unix IPC socket
 -   **FR-012:** The system ****should**** not seed to swarm (pure leech)
 -   **FR-013:** The system ****shall**** request pieces sequentially from peers
 -   **FR-014:** The system ****should**** try distribute pieces request across all peers
--   **FR-015:** Media players ****should**** expect data stream with fMP4 containter format
+-   **FR-015:** Media players ****should**** expect data stream with fMP4 container format
 <a id="orgdd9cd8f"></a>
 ## TEST
 -   **FR-017:** The system ****should not**** be tested on real torrent
     torrent client may ban you for strange behavior (inaccurate statistics, spoofing)
--   **FR-018:** The system ****should**** be tested on a local smarm within LAN network
+-   **FR-018:** The system ****should**** be tested on a local swarm within LAN network
 
