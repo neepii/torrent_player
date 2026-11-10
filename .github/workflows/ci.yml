@@ -22,10 +22,10 @@ jobs:
           cache: true
 
       - name: Format check
-        run: go fmt ./src
+        run: go fmt ./...
 
       - name: Lint check
-        run: go vet ./src
+        run: go vet ./...
 
       - name: Run Tests
-        run: go test -v ./src
+        run: go test -v ./...
