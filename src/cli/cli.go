@@ -12,6 +12,20 @@ import (
 	"github.com/neepii/torrent_player/src/torrent"
 )
 
+const (
+		exitSuccess = iota
+		exitInternalFail
+		exitCliFail
+)
+
+const usageMsg = `Usage: torrent_player [options] <file.torrent>
+
+Parse a v1 single-file .torrent and print its metadata dictionary.
+
+Options:
+  -h    show this help and exit
+`
+
 // Run executes the CLI with the given arguments and returns the process exit
 // code. Output goes to stdout and diagnostics to stderr; both are injected for
 // testability.
@@ -23,43 +37,37 @@ func Run(args []string, stdout, stderr io.Writer) int {
 
 	if err := fs.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
-			return 0
+			return exitSuccess
 		}
-		return 2
+		return exitCliFail
 	}
 	if *help {
 		usage(stdout)
-		return 0
+		return exitSuccess
 	}
 	if fs.NArg() != 1 {
 		usage(stderr)
-		return 2
+		return exitCliFail
 	}
 
 	data, err := os.ReadFile(fs.Arg(0))
 	if err != nil {
 		fmt.Fprintf(stderr, "torrent: %v\n", err)
-		return 1
+		return exitInternalFail
 	}
 
 	t, err := torrent.Parse(data)
 	if err != nil {
 		fmt.Fprintln(stderr, err)
-		return 1
+		return exitInternalFail
 	}
 
 	printDict(stdout, t)
-	return 0
+	return exitSuccess
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintf(w, `Usage: torrent_player [options] <file.torrent>
-
-Parse a v1 single-file .torrent and print its metadata dictionary.
-
-Options:
-  -h    show this help and exit
-`)
+	fmt.Fprintf(w, usageMsg)
 }
 
 func printDict(w io.Writer, t *torrent.TorrentData) {
