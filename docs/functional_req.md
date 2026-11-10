@@ -21,7 +21,7 @@
 # REQUIREMNENTS
 <a id="org71e41b4"></a>
 ## FRONTEND
--   **FR-001:** The system ****shall**** accept files with .torrent file extension through CLI
+-   **FR-001:** The system ****shall**** accept files with .torrent file format through CLI
 -   **FR-001:** The system ****shall**** accept .torrent v1 files
 -   **FR-001:** The system ****shall**** accept single file torrents
 -   **FR-002:** The system ****required**** to log (in stderr) results of bencode parsing
