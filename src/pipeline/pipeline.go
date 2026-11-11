@@ -5,15 +5,13 @@ package pipeline
 import (
 	"io"
 	"net"
+	"net/netip"
 
 	"github.com/neepii/torrent_player/src/torrent"
 )
 
-// PeerData is a peer address reported by the tracker ("PeerData" in the
-// architecture diagram).
 type PeerData struct {
-	IP   net.IP
-	Port uint16
+	AddrPort netip.AddrPort
 }
 
 // PeerConnection is an open TCP connection to a peer ("PeerConnection" in the
