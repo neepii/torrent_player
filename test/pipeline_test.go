@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"io"
-	"net"
+	"net/netip"
 	"testing"
 
 	"github.com/neepii/torrent_player/src/pipeline"
@@ -69,7 +69,7 @@ func TestPipelineIntegrationPointsCanBeFaked(t *testing.T) {
 
 	parser := fakeParser{torrent: meta}
 	tracker := fakeTracker{peers: []pipeline.PeerData{
-		{IP: net.IPv4(127, 0, 0, 1), Port: 6881},
+		{AddrPort: netip.AddrPortFrom(netip.AddrFrom4([4]byte{127,0,0,1}), 6881)},
 	}}
 	source := &fakePieceSource{pieces: [][]byte{[]byte("piece0"), []byte("piece1")}}
 	playback := &fakePlayback{}
@@ -86,7 +86,9 @@ func TestPipelineIntegrationPointsCanBeFaked(t *testing.T) {
 	if err != nil {
 		t.Fatalf("fake tracker: %v", err)
 	}
-	if len(peers) != 1 || !peers[0].IP.Equal(net.IPv4(127, 0, 0, 1)) || peers[0].Port != 6881 {
+	expected_ip := netip.AddrFrom4([4]byte{127, 0, 0, 1})
+	expected_port := uint16(6881)
+	if len(peers) != 1 || peers[0].AddrPort.Addr() != expected_ip || peers[0].AddrPort.Port() != expected_port {
 		t.Errorf("fake tracker peers = %+v", peers)
 	}
 
