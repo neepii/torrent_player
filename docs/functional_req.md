@@ -24,11 +24,11 @@
 -   **FR-001:** The system ****shall**** accept files with .torrent file format through CLI
 -   **FR-001:** The system ****shall**** accept .torrent v1 files
 -   **FR-001:** The system ****shall**** accept single file torrents
--   **FR-002:** The system ****required**** to log (in stderr) results of bencode parsing
+-   **FR-002:** The system ****required**** to log (in stdout) results of bencode parsing
 -   **FR-003:** The system ****required**** display an error (in stderr) when parser fails
 -   **FR-004:** The system ****required**** display an error (in stderr) when HTTP GET request to tracker fails
--   **FR-005:** The system ****required**** log (in stderr) results of HTTP GET request to tracker
--   **FR-006:** The system ****required**** log (in stderr) the number and the list of peers from HTTP GET request to tracker
+-   **FR-005:** The system ****required**** log (in stdout) results of HTTP GET request to tracker
+-   **FR-006:** The system ****required**** log (in stdout) the number and the list of peers from HTTP GET request to tracker
 <a id="org2f91122"></a>
 ## BACKEND
 -   **FR-008:** The system ****shall**** parse .torrent file to get structure described in Architecture
