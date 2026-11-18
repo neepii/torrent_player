@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/jackpal/bencode-go"
+	"github.com/neepii/torrent_player/src/pipeline"
 )
 
 const (
@@ -75,18 +76,8 @@ type AnnounceRequest struct {
 	NumWant int
 }
 
-// Peer is a peer endpoint returned by a tracker.
-type Peer struct {
-	Addr netip.Addr
-	Port uint16
-	// ID is present when a non-compact tracker response supplies a peer ID.
-	ID *[20]byte
-}
-
-// String formats the peer as "ip:port".
-func (p Peer) String() string {
-	return netip.AddrPortFrom(p.Addr, p.Port).String()
-}
+// Peer is the peer data shared with the download pipeline.
+type Peer = pipeline.PeerData
 
 // Response is a successful, parsed announce response.
 type Response struct {
@@ -377,7 +368,7 @@ func parseCompactPeers(data []byte, addrLen int) ([]Peer, error) {
 			addr = netip.AddrFrom16(b)
 		}
 		port := binary.BigEndian.Uint16(data[i+addrLen : i+entryLen])
-		peers = append(peers, Peer{Addr: addr, Port: port})
+		peers = append(peers, Peer{AddrPort: netip.AddrPortFrom(addr, port)})
 	}
 	return peers, nil
 }
@@ -411,7 +402,7 @@ func parseNonCompactPeers(list []any) ([]Peer, error) {
 		if !ok {
 			return nil, errf("malformed peer %d: %q is not an integer", i, "port")
 		}
-		if port <= 0 || port > 65535 {
+		if port <= 0 || port > math.MaxUint16 {
 			return nil, errf("malformed peer %d: invalid port %d", i, port)
 		}
 
@@ -424,7 +415,7 @@ func parseNonCompactPeers(list []any) ([]Peer, error) {
 			id = new([20]byte)
 			copy(id[:], raw)
 		}
-		peers = append(peers, Peer{Addr: addr, Port: uint16(port), ID: id})
+		peers = append(peers, Peer{AddrPort: netip.AddrPortFrom(addr, uint16(port)), ID: id})
 	}
 	return peers, nil
 }

@@ -197,7 +197,7 @@ func TestAnnounceSendsRequiredParameters(t *testing.T) {
 	if len(resp.Peers) != 1 {
 		t.Fatalf("len(Peers) = %d, want 1", len(resp.Peers))
 	}
-	if got := resp.Peers[0]; got.Addr.String() != "192.0.2.10" || got.Port != 6001 {
+	if got := resp.Peers[0]; got.AddrPort.Addr().String() != "192.0.2.10" || got.AddrPort.Port() != 6001 {
 		t.Errorf("Peers[0] = %v, want 192.0.2.10:6001", got)
 	}
 }
@@ -265,8 +265,8 @@ func TestAnnounceParsesCompactPeers(t *testing.T) {
 	}
 
 	want := []tracker.Peer{
-		{Addr: netip.MustParseAddr("10.1.2.3"), Port: 6881},
-		{Addr: netip.MustParseAddr("192.0.2.55"), Port: 65535},
+		{AddrPort: netip.MustParseAddrPort("10.1.2.3:6881")},
+		{AddrPort: netip.MustParseAddrPort("192.0.2.55:65535")},
 	}
 	if len(resp.Peers) != len(want) {
 		t.Fatalf("len(Peers) = %d, want %d", len(resp.Peers), len(want))
@@ -297,14 +297,14 @@ func TestAnnounceParsesNonCompactPeers(t *testing.T) {
 	id := [20]byte{}
 	copy(id[:], bytes.Repeat([]byte{0xaa}, 20))
 	want := []tracker.Peer{
-		{Addr: netip.MustParseAddr("127.0.0.1"), Port: 6881, ID: &id},
-		{Addr: netip.MustParseAddr("2001:db8::1"), Port: 51413},
+		{AddrPort: netip.MustParseAddrPort("127.0.0.1:6881"), ID: &id},
+		{AddrPort: netip.MustParseAddrPort("[2001:db8::1]:51413")},
 	}
 	if len(resp.Peers) != len(want) {
 		t.Fatalf("len(Peers) = %d, want %d", len(resp.Peers), len(want))
 	}
 	for i := range want {
-		if resp.Peers[i].Addr != want[i].Addr || resp.Peers[i].Port != want[i].Port || (want[i].ID == nil) != (resp.Peers[i].ID == nil) || (want[i].ID != nil && *want[i].ID != *resp.Peers[i].ID) {
+		if resp.Peers[i].AddrPort != want[i].AddrPort || (want[i].ID == nil) != (resp.Peers[i].ID == nil) || (want[i].ID != nil && *want[i].ID != *resp.Peers[i].ID) {
 			t.Errorf("Peers[%d] = %v, want %v", i, resp.Peers[i], want[i])
 		}
 	}
@@ -323,7 +323,7 @@ func TestAnnounceParsesCompactIPv6Peers(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Announce() error = %v", err)
 	}
-	want := tracker.Peer{Addr: netip.MustParseAddr("2001:db8::42"), Port: 6881}
+	want := tracker.Peer{AddrPort: netip.MustParseAddrPort("[2001:db8::42]:6881")}
 	if len(resp.Peers) != 1 || resp.Peers[0] != want {
 		t.Errorf("Peers = %v, want [%v]", resp.Peers, want)
 	}
@@ -525,12 +525,12 @@ func TestAnnounceRejectsInvalidRequests(t *testing.T) {
 }
 
 func TestPeerString(t *testing.T) {
-	peer := tracker.Peer{Addr: netip.MustParseAddr("192.0.2.1"), Port: 6881}
+	peer := tracker.Peer{AddrPort: netip.MustParseAddrPort("192.0.2.1:6881")}
 	if got, want := peer.String(), "192.0.2.1:6881"; got != want {
 		t.Errorf("Peer.String() = %q, want %q", got, want)
 	}
 
-	ipv6 := tracker.Peer{Addr: netip.MustParseAddr("2001:db8::1"), Port: 6881}
+	ipv6 := tracker.Peer{AddrPort: netip.MustParseAddrPort("[2001:db8::1]:6881")}
 	if got, want := ipv6.String(), "[2001:db8::1]:6881"; got != want {
 		t.Errorf("Peer.String() = %q, want %q", got, want)
 	}
