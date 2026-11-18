@@ -12,7 +12,12 @@ import (
 
 type PeerData struct {
 	AddrPort netip.AddrPort
+	// ID is supplied by trackers using non-compact peer lists.
+	ID *[20]byte
 }
+
+// String formats the peer endpoint.
+func (p PeerData) String() string { return p.AddrPort.String() }
 
 // PeerConnection is an open TCP connection to a peer ("PeerConnection" in the
 // architecture diagram).
