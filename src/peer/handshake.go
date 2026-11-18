@@ -32,15 +32,15 @@ const HandshakeLen = 1 + ProtocolNameLen + ReservedLen + InfoHashLen + PeerIDLen
 
 // Message types as defined in BEP 3.
 const (
-	MsgChoke         = 0
-	MsgUnchoke       = 1
-	MsgInterested    = 2
-	MsgNotInterested = 3
-	MsgHave          = 4
-	MsgBitfield      = 5
-	MsgRequest       = 6
-	MsgPiece         = 7
-	MsgCancel        = 8
+	MsgChoke = iota
+	MsgUnchoke
+	MsgInterested
+	MsgNotInterested
+	MsgHave
+	MsgBitfield
+	MsgRequest
+	MsgPiece
+	MsgCancel
 )
 
 // Handshake is the initial protocol message exchanged when establishing a
@@ -174,7 +174,7 @@ type HandshakeResult struct {
 
 // Conn represents a BitTorrent peer connection with handshake support.
 type Conn struct {
-	conn        net.Conn
+	net.Conn
 	cfg         *HandshakeConfig
 	handshaked  bool
 	infoHash    [InfoHashLen]byte
@@ -189,61 +189,21 @@ func NewConn(c net.Conn, cfg *HandshakeConfig) *Conn {
 		cfg = DefaultHandshakeConfig()
 	}
 	return &Conn{
-		conn: c,
+		Conn: c,
 		cfg:  cfg,
 	}
-}
-
-// Read reads data from the underlying connection.
-func (c *Conn) Read(b []byte) (int, error) {
-	return c.conn.Read(b)
-}
-
-// Write writes data to the underlying connection.
-func (c *Conn) Write(b []byte) (int, error) {
-	return c.conn.Write(b)
-}
-
-// Close closes the underlying connection.
-func (c *Conn) Close() error {
-	return c.conn.Close()
-}
-
-// LocalAddr returns the local address.
-func (c *Conn) LocalAddr() net.Addr {
-	return c.conn.LocalAddr()
-}
-
-// RemoteAddr returns the remote address.
-func (c *Conn) RemoteAddr() net.Addr {
-	return c.conn.RemoteAddr()
-}
-
-// SetDeadline sets the deadline for the connection.
-func (c *Conn) SetDeadline(t time.Time) error {
-	return c.conn.SetDeadline(t)
-}
-
-// SetReadDeadline sets the read deadline.
-func (c *Conn) SetReadDeadline(t time.Time) error {
-	return c.conn.SetReadDeadline(t)
-}
-
-// SetWriteDeadline sets the write deadline.
-func (c *Conn) SetWriteDeadline(t time.Time) error {
-	return c.conn.SetWriteDeadline(t)
 }
 
 // DoClientHandshake performs the client-side handshake.
 // It sends our handshake and receives the peer's handshake.
 func (c *Conn) DoClientHandshake(ourHandshake *Handshake) (*Handshake, error) {
-	if err := c.conn.SetDeadline(time.Now().Add(c.cfg.Timeout)); err != nil {
+	if err := c.Conn.SetDeadline(time.Now().Add(c.cfg.Timeout)); err != nil {
 		return nil, &HandshakeError{Op: "set_deadline", Err: err}
 	}
-	defer c.conn.SetDeadline(time.Time{})
+	defer c.Conn.SetDeadline(time.Time{})
 
 	// Send our handshake
-	if n, err := c.conn.Write(ourHandshake.Encode()); err != nil {
+	if n, err := c.Conn.Write(ourHandshake.Encode()); err != nil {
 		return nil, &HandshakeError{Op: "send", Err: err, Host: c.RemoteAddr().String()}
 	} else if n != HandshakeLen {
 		return nil, &HandshakeError{Op: "send", Err: io.ErrShortWrite, Host: c.RemoteAddr().String()}
@@ -251,7 +211,7 @@ func (c *Conn) DoClientHandshake(ourHandshake *Handshake) (*Handshake, error) {
 
 	// Receive peer's handshake
 	peerHandshakeData := make([]byte, HandshakeLen)
-	if _, err := io.ReadFull(c.conn, peerHandshakeData); err != nil {
+	if _, err := io.ReadFull(c.Conn, peerHandshakeData); err != nil {
 		return nil, &HandshakeError{Op: "receive", Err: err, Host: c.RemoteAddr().String()}
 	}
 
@@ -283,14 +243,14 @@ func (c *Conn) DoClientHandshake(ourHandshake *Handshake) (*Handshake, error) {
 // DoServerHandshake performs the server-side handshake.
 // It receives the peer's handshake first, then sends our handshake.
 func (c *Conn) DoServerHandshake(ourHandshake *Handshake, validatePeerID bool) (*Handshake, error) {
-	if err := c.conn.SetDeadline(time.Now().Add(c.cfg.Timeout)); err != nil {
+	if err := c.Conn.SetDeadline(time.Now().Add(c.cfg.Timeout)); err != nil {
 		return nil, &HandshakeError{Op: "set_deadline", Err: err}
 	}
-	defer c.conn.SetDeadline(time.Time{})
+	defer c.Conn.SetDeadline(time.Time{})
 
 	// Receive peer's handshake first
 	peerHandshakeData := make([]byte, HandshakeLen)
-	if _, err := io.ReadFull(c.conn, peerHandshakeData); err != nil {
+	if _, err := io.ReadFull(c.Conn, peerHandshakeData); err != nil {
 		return nil, &HandshakeError{Op: "receive", Err: err, Host: c.RemoteAddr().String()}
 	}
 
@@ -315,7 +275,7 @@ func (c *Conn) DoServerHandshake(ourHandshake *Handshake, validatePeerID bool) (
 	}
 
 	// Send our handshake
-	if n, err := c.conn.Write(ourHandshake.Encode()); err != nil {
+	if n, err := c.Conn.Write(ourHandshake.Encode()); err != nil {
 		return nil, &HandshakeError{Op: "send", Err: err, Host: c.RemoteAddr().String()}
 	} else if n != HandshakeLen {
 		return nil, &HandshakeError{Op: "send", Err: io.ErrShortWrite, Host: c.RemoteAddr().String()}
