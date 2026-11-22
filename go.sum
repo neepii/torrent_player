@@ -1,2 +1,6 @@
+github.com/Eyevinn/mp4ff v0.59.0 h1:FkuG2kEuLCdWw561mRRuIic7ehTH24Oy1OJ1t6AFyAs=
+github.com/Eyevinn/mp4ff v0.59.0/go.mod h1:3EZTsioPJ4xTLZEBBkVWoyd7UHnGp4vzwoEJ7lmr3CQ=
+github.com/go-test/deep v1.1.0 h1:WOcxcdHcvdgThNXjw0t76K42FXTU7HpNQWHpA2HHNlg=
+github.com/go-test/deep v1.1.0/go.mod h1:5C2ZWiW0ErCdrYzpqxLbTX7MG14M9iiw8DgHncVwcsE=
 github.com/jackpal/bencode-go v1.2.1 h1:n97noJxyqUU4jQeWhEDuGvoHT73N4RE6EaiHAbfw0NI=
 github.com/jackpal/bencode-go v1.2.1/go.mod h1:6jI9mUjO3GQbZti3JizEfxTzRfWOM8oBBcwbwlTfceI=
