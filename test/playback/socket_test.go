@@ -2,6 +2,7 @@ package playback_test
 
 import (
 	"bytes"
+	"io"
 	"net"
 	"os"
 	"path/filepath"
@@ -10,6 +11,10 @@ import (
 
 	"github.com/neepii/torrent_player/src/playback"
 )
+
+// readTimeout bounds how long a test waits for stream bytes, so a stuck stream
+// fails the test instead of blocking the run.
+const readTimeout = 10 * time.Second
 
 // TestAdapterServesFragmentedMP4OverUnixSocket is the socket test that runs
 // without a player: it creates the unix domain socket, connects a plain client
@@ -28,7 +33,7 @@ func TestAdapterServesFragmentedMP4OverUnixSocket(t *testing.T) {
 	if err != nil {
 		t.Fatalf("dial %s: %v", socketPath, err)
 	}
-	data := readAll(t, conn)
+	data := readStream(t, conn, nil)
 	conn.Close()
 
 	if err := <-serveErr; err != nil {
@@ -65,6 +70,27 @@ func TestAdapterListenReportsBadPath(t *testing.T) {
 	a := &playback.Adapter{SocketPath: filepath.Join(t.TempDir(), "missing", "stream.sock")}
 	if _, err := a.Listen(); err == nil {
 		t.Fatal("Listen() accepted a socket path in a missing directory")
+	}
+}
+
+// readStream reads conn in chunks until the stream ends and returns the bytes
+// appended to data, so tests see the stream grow instead of waiting for one
+// complete read.
+func readStream(t *testing.T, conn net.Conn, data []byte) []byte {
+	t.Helper()
+	if err := conn.SetReadDeadline(time.Now().Add(readTimeout)); err != nil {
+		t.Fatalf("set read deadline: %v", err)
+	}
+	buf := make([]byte, 512)
+	for {
+		n, err := conn.Read(buf)
+		data = append(data, buf[:n]...)
+		if err == io.EOF {
+			return data
+		}
+		if err != nil {
+			t.Fatalf("read stream after %d bytes: %v", len(data), err)
+		}
 	}
 }
 

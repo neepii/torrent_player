@@ -56,6 +56,13 @@ func (r *Remuxer) WriteTo(w io.Writer, src io.ReadSeeker) error {
 	if err := init.Encode(w); err != nil {
 		return errf("write init segment: %w", err)
 	}
+	// The player cannot use any fragment before it has the init segment, so
+	// hand that out as soon as it exists rather than with the first fragment.
+	if f, ok := w.(flusher); ok {
+		if err := f.Flush(); err != nil {
+			return errf("flush init segment: %w", err)
+		}
+	}
 
 	bounds, err := r.fragmentBounds(trak)
 	if err != nil {

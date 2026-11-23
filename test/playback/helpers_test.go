@@ -3,7 +3,6 @@ package playback_test
 import (
 	"bytes"
 	"encoding/binary"
-	"io"
 	"os"
 	"testing"
 
@@ -75,14 +74,4 @@ func decodeFragmentCount(t *testing.T, data []byte) (fragments, samples int) {
 		}
 	}
 	return fragments, samples
-}
-
-// readAll copies all remaining bytes from r.
-func readAll(t *testing.T, r io.Reader) []byte {
-	t.Helper()
-	data, err := io.ReadAll(r)
-	if err != nil {
-		t.Fatalf("read all: %v", err)
-	}
-	return data
 }
