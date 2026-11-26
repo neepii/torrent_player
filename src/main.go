@@ -18,6 +18,12 @@ import (
 const (
 	standardPort   = 6881
 	standardPeerID = "-MY0001-deadbeef01xZ"
+
+	// ignoreIndexOption makes the FFmpeg mov demuxer read large fragmented
+	// MP4 streams sequentially. FFmpeg's unix protocol is not marked as a
+	// streamed input, so the demuxer otherwise skips the mdat while probing
+	// and then cannot seek back on the non-seekable socket.
+	ignoreIndexOption = "--demuxer-lavf-o=fflags=+ignidx"
 )
 
 func main() {
@@ -92,6 +98,7 @@ func run(cfg *cli.Config) error {
 
 	player := playback.Player{
 		SocketPath: cfg.SocketFile,
+		Args:       []string{ignoreIndexOption},
 		Stdout:     os.Stdout,
 		Stderr:     os.Stderr,
 	}
